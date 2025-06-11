@@ -3,6 +3,7 @@ import time
 import queue
 import threading
 import logging
+import datetime
 
 import torch
 import whisper
@@ -10,12 +11,28 @@ import numpy as np
 import sounddevice as sd
 
 # ────────────────────── Logging Setup ────────────────────── #
+# Console logger
 logging.basicConfig(
     level=logging.INFO,
     format='[%(asctime)s] %(levelname)s - %(message)s',
     datefmt='%H:%M:%S'
 )
 log = logging.getLogger("VAD-Whisper")
+
+# File handler for daily logs
+def setup_daily_file_handler():
+    """
+    Creates or appends to a daily log file named transcripts-YYYY-MM-DD.log
+    """
+    today = datetime.date.today().strftime("%Y-%m-%d")
+    filename = f"transcripts-{today}.log"
+    fh = logging.FileHandler(filename, mode="a", encoding="utf-8")
+    fh.setLevel(logging.INFO)
+    fh.setFormatter(logging.Formatter('[%(asctime)s] %(levelname)s - %(message)s', datefmt='%H:%M:%S'))
+    log.addHandler(fh)
+
+# Initialize file handler
+setup_daily_file_handler()
 
 # ────────────────────── Config & Args ────────────────────── #
 def parse_args():
