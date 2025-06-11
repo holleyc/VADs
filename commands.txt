@@ -2,3 +2,23 @@
 python3 real_time_transcribe.py --model small --device cuda --rate 16000 --block 0.5 --silence 2
 
 python3 real_time_transcribe_v2.py --model small --device cuda --rate 16000 --block 0.5 --silence 2
+
+
+
+https://chatgpt.com/c/6848d7b9-885c-800c-a6b8-c47df913e980
+
+from real_time_listener import RealTimeListener
+
+listener = RealTimeListener(model='small', device='cuda')
+listener.start()
+
+try:
+    while True:
+        text = listener.listen_once(timeout=10)
+        if text:
+            print(f">> You said: {text}")
+            # e.g. send to LLM here
+        else:
+            print("<< No speech detected.")
+except KeyboardInterrupt:
+    listener.stop()
