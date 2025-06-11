@@ -22,3 +22,7 @@ try:
             print("<< No speech detected.")
 except KeyboardInterrupt:
     listener.stop()
+
+source venv/bin/activate
+
+python3 ~/Projects/VADs/real_time_transcribe_v2.py --model medium --device cuda --rate 16000 --block 0.5 --silence 2
