@@ -26,3 +26,10 @@ except KeyboardInterrupt:
 source venv/bin/activate
 
 python3 ~/Projects/VADs/real_time_transcribe_v2.py --model medium --device cuda --rate 16000 --block 0.5 --silence 2
+
+
+pip freeze > requirementsGTX1660Ti.txt
+
+python3 -m venv venv
+source venv/bin/activate
+pip install -r requirementsGTX1660Ti.txt

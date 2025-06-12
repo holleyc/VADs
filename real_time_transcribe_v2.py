@@ -37,7 +37,7 @@ setup_daily_file_handler()
 # ────────────────────── Config & Args ────────────────────── #
 def parse_args():
     p = argparse.ArgumentParser("Real-time VAD + Whisper")
-    p.add_argument('--model',    default='small', help='Whisper model')
+    p.add_argument('--model',    default='small', help='Whisper model (locked to English)')
     p.add_argument('--device',   default=None,    help='torch device: cpu or cuda')
     p.add_argument('--rate',     type=int, default=16000, help='Sampling rate')
     p.add_argument('--block',    type=float, default=0.2, help='Block duration (s)')
@@ -143,7 +143,13 @@ def run(args):
                     log.info(f"<<< Utterance {utt_count} ended at {timestamp}, duration {duration:.2f}s")
 
                     transcribe_start = time.time()
-                    result = whisper_model.transcribe(audio_np, fp16=(device == 'cuda'))
+                    # Force English-only transcription
+                    result = whisper_model.transcribe(
+                        audio_np,
+                        language='en',
+                        task='transcribe',
+                        fp16=(device == 'cuda')
+                    )
                     transcribe_latency = time.time() - transcribe_start
 
                     total_audio_sec += duration
