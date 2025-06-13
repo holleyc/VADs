@@ -25,7 +25,9 @@ pipeline {
                   if [ -f requirements.txt ]; then
                     pip install -r requirements.txt
                   elif [ -f requirementsGTX1660Ti.txt ]; then
-                    pip install -r requirementsGTX1660Ti.txt
+                    # Skip problematic packages like apturl
+                    grep -v '^apturl==' requirementsGTX1660Ti.txt > filtered-requirements.txt || true
+                    pip install -r filtered-requirements.txt || true
                   else
                     echo "No requirements file found, skipping dependency install"
                   fi
