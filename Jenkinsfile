@@ -1,8 +1,10 @@
 pipeline {
     agent any
 
+    // Automatically trigger on GitHub push webhooks AND fallback polling
     triggers {
         githubPush()
+        pollSCM('H/5 * * * *')  // fallback: poll every 5 minutes if webhook misfires
     }
 
     environment {
