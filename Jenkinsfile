@@ -6,7 +6,8 @@ pipeline {
     }
 
     environment {
-        VENV_DIR = 'venv'
+        VENV_DIR     = 'venv'
+        OLLAMA_MODEL = 'llm-your-model:latest' // adjust to your local model name
     }
 
     stages {
@@ -25,7 +26,6 @@ pipeline {
                   if [ -f requirements.txt ]; then
                     pip install -r requirements.txt
                   elif [ -f requirementsGTX1660Ti.txt ]; then
-                    # Skip problematic packages like apturl
                     grep -v '^apturl==' requirementsGTX1660Ti.txt > filtered-requirements.txt || true
                     pip install -r filtered-requirements.txt || true
                   else
@@ -62,14 +62,34 @@ pipeline {
                 archiveArtifacts artifacts: 'dist/*.tar.gz', allowEmptyArchive: true, fingerprint: true
             }
         }
+
+        stage('LLM Analysis') {
+            steps {
+                // Capture the last commit diff
+                sh 'git diff HEAD~1 HEAD > changes.patch'
+
+                // Run Ollama on the diff
+                sh '''
+                  ollama run ${OLLAMA_MODEL} \
+                    --prompt-file changes.patch \
+                    --output llm_report.txt
+                '''
+
+                // Display the LLM report in console
+                sh 'cat llm_report.txt'
+
+                // Archive the report for later review
+                archiveArtifacts artifacts: 'llm_report.txt', fingerprint: true
+            }
+        }
     }
 
     post {
         success {
-            echo 'Build succeeded!'
+            echo '✅ Build, tests, and LLM analysis succeeded!'
         }
         failure {
-            echo 'Build failed. Check the console output.'
+            echo '❌ Build or LLM analysis failed. Check console output.'
         }
     }
 }
