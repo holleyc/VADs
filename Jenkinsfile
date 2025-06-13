@@ -7,45 +7,53 @@ pipeline {
     }
 
     environment {
-        // Use a Python virtual environment
+        // Virtual environment directory
         VENV_DIR = 'venv'
     }
 
     stages {
         stage('Checkout') {
             steps {
-                // Clone the repository based on the Jenkinsfile in SCM
                 checkout scm
             }
         }
 
         stage('Setup Environment') {
             steps {
-                // Create and activate virtualenv, install dependencies
-                sh 'python3 -m venv ${VENV_DIR}'
-                sh "source ${VENV_DIR}/bin/activate && pip install --upgrade pip"
-                sh "source ${VENV_DIR}/bin/activate && pip install -r requirements.txt"
+                // Create virtualenv and install dependencies in one shell session
+                sh '''
+                  python3 -m venv ${VENV_DIR}
+                  . ${VENV_DIR}/bin/activate
+                  pip install --upgrade pip
+                  pip install -r requirements.txt
+                '''
             }
         }
 
         stage('Lint') {
             steps {
-                // Example lint step (optional)
-                sh "source ${VENV_DIR}/bin/activate && flake8 ."
+                sh '''
+                  . ${VENV_DIR}/bin/activate
+                  flake8 .
+                '''
             }
         }
 
         stage('Test') {
             steps {
-                // Run tests (if you have pytest or other tests)
-                sh "source ${VENV_DIR}/bin/activate && pytest -q --disable-warnings"
+                sh '''
+                  . ${VENV_DIR}/bin/activate
+                  pytest -q --disable-warnings
+                '''
             }
         }
 
         stage('Package') {
             steps {
-                // Example packaging or artifact creation
-                sh "source ${VENV_DIR}/bin/activate && python setup.py sdist"
+                sh '''
+                  . ${VENV_DIR}/bin/activate
+                  python setup.py sdist
+                '''
                 archiveArtifacts artifacts: 'dist/*.tar.gz', fingerprint: true
             }
         }
